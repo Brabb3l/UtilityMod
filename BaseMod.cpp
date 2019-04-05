@@ -7,9 +7,6 @@
 #include "BaseMod.h"
 #include "ModInfo.h"
 
-/// config
-Configuration config("ItemMod");
-
 void * player;
 void * controller;
 
@@ -109,11 +106,6 @@ bool onPlayerControllerBeginPlay(std::vector<void*>& args) {
 }
 
 GLOBAL void setup() {
-	if (!config.exists())
-		config.save();
-
-	config.load();
-
 	dispatcher.subscribe(EventType::PlayerSentMessage, onPlayerSentMessage);
 	dispatcher.subscribe(EventType::PlayerBeginPlay, onPlayerBeginPlay);
 	dispatcher.subscribe(EventType::PlayerControllerBeginPlay, onPlayerControllerBeginPlay);
