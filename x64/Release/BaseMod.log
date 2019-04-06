@@ -1,5 +1,0 @@
-﻿  BaseMod.cpp
-c:\users\niklas\source\repos\satisfactorymodloader\satisfactorymodloader\util\fstring.h(22): warning C4267: '=': conversion from 'size_t' to 'int32_t', possible loss of data
-c:\users\niklas\source\repos\satisfactorymodloader\satisfactorymodloader\event\game\playerevents.h(47): warning C4244: '=': conversion from 'int16_t' to 'char', possible loss of data
-     Creating library C:\Users\Niklas\source\repos\SatisfactoryModLoader\x64\Release\mods\BaseMod\BaseMod.lib and object C:\Users\Niklas\source\repos\SatisfactoryModLoader\x64\Release\mods\BaseMod\BaseMod.exp
-  BaseMod.vcxproj -> C:\Users\Niklas\source\repos\SatisfactoryModLoader\x64\Release\mods\BaseMod\BaseMod.dll

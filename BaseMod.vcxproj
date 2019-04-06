@@ -125,12 +125,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BaseMod.h" />
+    <ClInclude Include="CommandSystem.h" />
     <ClInclude Include="ModInfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseMod.cpp" />
+    <ClCompile Include="CommandSystem.cpp" />
     <ClCompile Include="ModInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
