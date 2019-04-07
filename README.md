@@ -1,6 +1,7 @@
 # Utility Mod
 
 This is a mod for the game Satisfactory which requires the SatisfactoryModLoader (https://github.com/satisfactorymodding/SatisfactoryModLoader) to work.
+It adds several commands which are listed below.
 
 ## Commands
 
