@@ -7,14 +7,19 @@
 #include "BaseMod.h"
 #include "ModInfo.h"
 #include "CommandSystem.h"
+#include "Util.h"
 
-void * character;
+// Globals variables
+
+class PlayerCharacter* character;
 void * controller;
 void * world;
 
-CommandSystem commandSystem;
-
 std::string ModName = "ItemMod";
+
+// Custom Systems
+
+class CommandSystem* commandSystem;
 
 // Util functions
 
@@ -36,65 +41,64 @@ void onCommand(std::string command, std::vector<std::string> args, void * player
 			int slot = std::stoi(args[0]);
 			int amount = std::stoi(args[1]);
 
-			void * inventory = (void *)(*(size_t*)offset(character, 0xa48));
-			int * defaultInvSize = (int *)offset(inventory, 0x0138);
-			int * additionalInvSize = (int *)offset(inventory, 0x013c);
+			InventoryComponent* inventory = character->inventory;
 
-			int invSize = *defaultInvSize + *additionalInvSize;
+			int invSize = *inventory->defaultSize + *inventory->adjustedSize;
 
 			if (slot < 0 || slot > invSize - 1 || amount < 0) {
-				sendMessage("[MOD] Use /setitemamount <slot> <amount>");
+				sendMessage("[MOD] Invalid parameters");
 
 				return;
 			}
 
-			void * items = (void *)(*(size_t*)offset(inventory, 0x0148));
-			int * iamount = (int *)offset(items, 0x20 * slot + 0x18);
+			ItemStack itemStack = inventory->getItem(slot);
+			*itemStack.amount = amount;
 
-			*iamount = amount;
-
-			sendMessage("[MOD] Item amount has been set!");
+			sendMessage("[MOD] Item amount has been set.");
 		}
-		else if (command == "addressinfo") {
-			info_mod(ModName, "Player Address:\t", character);
-			info_mod(ModName, "Inventory Address:\t", (void *)(*(size_t*)offset(character, 0xa48)));
+		else if (command == "heal") {
+			*character->healthComponent->currentHealth = *character->healthComponent->maxHealth;
+
+			sendMessage("[MOD] You were healed.");
+		}
+		else if (command == "playeraddress") {
+			info_mod(ModName, "Player address:\t", character->pointer);
 		}
 		else if (command == "help") {
 			sendMessage("[MOD] /setitemamount <slot> <amount>");
-			sendMessage("[MOD] /addressinfo  (WIP)");
+			sendMessage("[MOD] /heal");
 		}
 	}
 	catch (std::exception e) {
-		sendMessage("[MOD] Use /help");
+		sendMessage("[MOD] Unexpected error");
 	}
 }
 
 bool onPlayerBeginPlay(std::vector<void*>& args) {
-	info_mod(ModName, "Got Character");
-	character = args[0];
+	character = new PlayerCharacter(args[0]);
 
 	return true;
 }
 
 bool onPlayerControllerBeginPlay(std::vector<void*>& args) {
-	info_mod(ModName, "Got Controller");
 	controller = args[0];
 
 	return true;
 }
 
+/* Needed for Command System */
 bool onPlayerSentMessage(std::vector<void*>& args) {
-	info_mod("ItemMod", "Incoming Message!");
-
-	return commandSystem.execute(*(std::string*)args[1], args[0]);
+	return commandSystem->execute(*(std::string*)args[1], args[0]);
 }
 
 GLOBAL void setup() {
+	commandSystem = new CommandSystem();
+
 	dispatcher.subscribe(EventType::PlayerSentMessage, onPlayerSentMessage);
 	dispatcher.subscribe(EventType::PlayerBeginPlay, onPlayerBeginPlay);
 	dispatcher.subscribe(EventType::PlayerControllerBeginPlay, onPlayerControllerBeginPlay);
 
-	commandSystem.subscribe(onCommand);
+	commandSystem->subscribe(onCommand);
 
 	info_mod(ModName, "Setup completed!");
 }
@@ -104,5 +108,6 @@ GLOBAL bool run(EventType type, std::vector<void*>& args) {
 }
 
 GLOBAL void cleanup() {
-	// do things
+	delete commandSystem;
+	delete character;
 }

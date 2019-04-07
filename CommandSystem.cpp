@@ -23,7 +23,9 @@ const std::vector<std::string> split(const std::string& s, const char& c)
 	return v;
 }
 
-CommandSystem::CommandSystem() {}
+CommandSystem::CommandSystem() {
+	this->_observers = std::vector<CommandFunc>();
+}
 
 void CommandSystem::subscribe(CommandFunc func) {
 	_observers.push_back(func);
@@ -33,7 +35,7 @@ bool CommandSystem::execute(std::string command, void * player) {
 	if (command.length() < 2 || command[0] != '/')
 		return true;
 
-	info_mod("ItemMod", "Executing command ", command);
+	info_mod("CommandSystem", "Executing command ", command);
 
 	std::vector<std::string> commandArgs = split(command, ' ');
 	std::string commandName = commandArgs[0].substr(1);
