@@ -8,8 +8,11 @@ This mod is under development!
 ## Commands
 
 /help
+
 /fly
+
 /flyspeed <speed>
+
 /god
 
 /give <itemname> <amount>    (WIP)
