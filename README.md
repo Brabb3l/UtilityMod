@@ -1,23 +1,15 @@
 # Utility Mod
 
-This is a mod for the game Satisfactory which requires the SatisfactoryModLoader (https://github.com/satisfactorymodding/SatisfactoryModLoader) to work.
-It adds several commands which are listed below.
+You can download the modloader and mod in the release tab.
+Currently there is no source code available!
 
 This mod is under development!
 
 ## Commands
 
-```
 /help
-```
-Shows a list of commands in the chat
+/fly
+/flyspeed <speed>
+/god
 
-```
-/setitemamount <slot> <amount>
-```
-Sets the item amount at a specific slot.
-
-```
-/heal
-```
-Heals the player
+/give <itemname> <amount>    (WIP)
