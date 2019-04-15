@@ -7,6 +7,7 @@ This mod is under development!
 
 ## Commands
 
+```
 /help
 
 /fly
@@ -16,3 +17,4 @@ This mod is under development!
 /god
 
 /give <itemname> <amount>    (WIP)
+```
