@@ -484,15 +484,15 @@ void ExampleMod::Setup() {
 
 	Global::BaseAddress = (DWORD_PTR)GetModuleHandle(nullptr);
 
-	auto btAddrUWorld = Global::BaseAddress + 0x21CF1F3;
+	auto btAddrUWorld = Global::BaseAddress + 0x2BA6FC;
 	auto btOffUWorld = *reinterpret_cast<uint32_t*>(btAddrUWorld + 3);
 	Global::m_UWorld = reinterpret_cast<UWorld**>(btAddrUWorld + 7 + btOffUWorld);
 
-	auto btAddrGObj = Global::BaseAddress + 0xE1364;
+	auto btAddrGObj = Global::BaseAddress + 0xE1434;
 	auto btOffGObj = *reinterpret_cast<uint32_t*>(btAddrGObj + 3);
 	UObject::GObjects = reinterpret_cast<FUObjectArray*>(btAddrGObj + 7 + btOffGObj);
 
-	auto btAddrGName = Global::BaseAddress + 0xAC5CC4;
+	auto btAddrGName = Global::BaseAddress + 0xAC3434;
 	auto btOffGName = *reinterpret_cast<uint32_t*>(btAddrGName + 3);
 	FName::GNames = *reinterpret_cast<TNameEntryArray**>(btAddrGName + 7 + btOffGName);
 

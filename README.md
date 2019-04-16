@@ -1,7 +1,6 @@
 # Utility Mod
 
-You can download the modloader and mod in the release tab.
-Currently there is no source code available!
+You can download a compiled modloader and mod version in the release tab.
 
 This mod is under development!
 
