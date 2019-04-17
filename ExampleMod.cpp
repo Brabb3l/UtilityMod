@@ -36,6 +36,7 @@ std::map<std::string, UFont*> fonts;
 bool isFlying = false;
 bool godMode = false;
 bool creativeMode = false;
+bool ignoreBuildRestriction = false;
 
 bool unlockAllSchematicsConfirmation = false;
 
@@ -287,6 +288,11 @@ void OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
 }
 */
 
+void CanConstructHologram(SML::ModReturns* returns, void* hologram) {
+	returns->ReturnValue = &ignoreBuildRestriction;
+	returns->UseOriginalFunction = !ignoreBuildRestriction;
+}
+
 /// Item helper functions
 
 FInventoryStack MakeItemStack(const std::string& itemname, const int& amount) {
@@ -302,6 +308,17 @@ FInventoryStack MakeItemStack(const std::string& itemname, const int& amount) {
 }
 
 /// Commands
+
+void IgnoreBuildRestriction(void* player, SML::CommandParser::CommandData data) {
+	if (ignoreBuildRestriction) {
+		sendMessage(L"Enabled build restriction!");
+	}
+	else {
+		sendMessage(L"Disabled build restriction!");
+	}
+
+	ignoreBuildRestriction = !ignoreBuildRestriction;
+}
 
 void UnlockAllSchematics(void* player, SML::CommandParser::CommandData data) {
 	if (!unlockAllSchematicsConfirmation) {
@@ -460,13 +477,14 @@ void Help(void* player, SML::CommandParser::CommandData data) {
 	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
 		return;
 
-	sendMessage(L"/give <item> <amount>    (WIP)");
-	sendMessage(L"/fly");
-	sendMessage(L"/flyspeed <speed>");
-	sendMessage(L"/god");
-	sendMessage(L"/settimedilation <dilation>");
-	sendMessage(L"/creative");
-	sendMessage(L"/unlockall");
+	sendMessage(L"- /give <item> <amount>    (WIP)");
+	sendMessage(L"- /fly");
+	sendMessage(L"- /flyspeed <speed>");
+	sendMessage(L"- /god");
+	sendMessage(L"- /settimedilation <dilation>");
+	sendMessage(L"- /creative");
+	sendMessage(L"- /unlockall");
+	sendMessage(L"- /togglebuildrestriction");
 }
 
 /// World Tick
@@ -580,6 +598,7 @@ void ExampleMod::Setup() {
 	_dispatcher.subscribe(SML::HookLoader::Event::WorldTick, Tick);
 	_dispatcher.subscribe(SML::HookLoader::Event::UFGHealthComponentTakeDamage, OnTakeDamage);
 	_dispatcher.subscribe(SML::HookLoader::Event::UPlayerInputInputKey, OnKeyInput);
+	_dispatcher.subscribe(SML::HookLoader::Event::CanConstructHologram, CanConstructHologram);
 	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
 
 	// SDK Init
@@ -610,6 +629,7 @@ void ExampleMod::Setup() {
 	commandSystem.RegisterCommand("settimedilation", SetTimeDilation);
 	commandSystem.RegisterCommand("creative", Creative);
 	commandSystem.RegisterCommand("unlockall", UnlockAllSchematics);
+	commandSystem.RegisterCommand("togglebuildrestriction", IgnoreBuildRestriction);
 
 	SML::mod_info(mod->Name(), "Initializing complete!");
 }
