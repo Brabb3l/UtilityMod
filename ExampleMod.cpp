@@ -30,10 +30,16 @@ double flyspeedmodemultiplier, baseflyspeed;
 float flySpeed = 1;
 
 std::map<std::string, UBlueprintGeneratedClass*> itemsMap;
+std::map<std::string, UFont*> fonts;
 
 // Custom character states
 bool isFlying = false;
 bool godMode = false;
+bool creativeMode = false;
+
+bool unlockAllSchematicsConfirmation = false;
+
+UFont* OrbitronFont;
 
 /// Globals
 
@@ -149,6 +155,9 @@ int GetKey(const std::string& key) {
 /// Events
 
 void GetMessage(SML::ModReturns* returns, void* player, std::string message) {
+	if (message.length() <= 1)
+		return;
+
 	SML::CommandParser::CommandData data = SML::CommandParser::Parse(message);
 	SML::Command command = commandSystem.get_command(data.Command);
 
@@ -220,7 +229,8 @@ void WorldInit(SML::ModReturns* returns, void* controller) {
 
 	// Cache global objects
 
-	std::map<std::string, UBlueprintGeneratedClass*> registeredItems;
+	std::map<std::string, UBlueprintGeneratedClass*> foundItems;
+	std::map<std::string, UFont*> foundFonts;
 
 	SML::mod_info(mod->Name(), "Caching global objects...");
 
@@ -233,25 +243,49 @@ void WorldInit(SML::ModReturns* returns, void* controller) {
 		if (objectItem.Object != nullptr) {
 			auto object = objectItem.Object;
 
+			if (object->Class->GetName() == "Font") {
+				std::string fontName = object->GetName();
+
+				foundFonts.insert({fontName, (UFont*) object});
+			}
+
 			// Get Item classes
 			if (object->Class->GetName() == "BlueprintGeneratedClass") {
 				std::string name = object->GetName();
 
 				if (startsWith(name, "Desc_")) {
-					std::string itemName = object->Outer->GetName().substr(5);
+					std::string itemName = object->GetName().substr(5);
 
-					registeredItems.insert({ itemName, (UBlueprintGeneratedClass*)object });
+					foundItems.insert({ itemName, (UBlueprintGeneratedClass*)object });
 
-					SML::mod_info(mod->Name(), "Registered item: " + itemName);
+					SML::mod_info(mod->Name(), "Found item: " + itemName);
 				}
 			}
 		}
 	}
 
+	SML::mod_info(mod->Name(), "Total Fonts: ", foundFonts.size());
+	SML::mod_info(mod->Name(), "Total Items: ", foundItems.size());
+	SML::mod_info(mod->Name(), "Total GObjects: ", num);
 	SML::mod_info(mod->Name(), "Caching complete!");
 
-	itemsMap = registeredItems;
+	fonts = foundFonts;
+	itemsMap = foundItems;
 }
+
+// WIP
+/*
+void OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
+	if (fonts.size() < 1)
+		return;
+
+	AHUD* hud = (AHUD*)hudptr;
+
+	hud->DrawRect(FLinearColor(0, 0, 0, 0), 0, 200, 200, 300);
+	hud->DrawLine(20, 250, 180, 250, FLinearColor(1, 1, 1, 1), 2);
+	hud->DrawText(FString(L"Some title"), FLinearColor(1, 1, 1, 1), 40, 220, fonts.at("FactoryFont"), 1, false);
+}
+*/
 
 /// Item helper functions
 
@@ -268,6 +302,73 @@ FInventoryStack MakeItemStack(const std::string& itemname, const int& amount) {
 }
 
 /// Commands
+
+void UnlockAllSchematics(void* player, SML::CommandParser::CommandData data) {
+	if (!unlockAllSchematicsConfirmation) {
+		sendMessage(L"You cannot undo this action! Type '/unlockall' to confirm it");
+
+		unlockAllSchematicsConfirmation = true;
+		return;
+	}
+
+	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
+
+	auto phaseManager = gamestate->mGamePhaseManager;
+	auto phases = phaseManager->mGamePhaseTierInfo;
+
+	for (size_t i = 0; i < phases.Num(); i++)
+		phaseManager->SetGamePhase(phases[i].gamePhase);
+
+	auto schematicManager = gamestate->mSchematicManager;
+	auto schematics = schematicManager->mAllSchematics;
+	
+	for (size_t i = 0; i < schematics.Num(); i++)
+		if (!schematicManager->IsSchematicPurchased(schematics[i]))
+			schematicManager->GiveAccessToSchematic(schematics[i], true);
+
+	sendMessage(L"All schematics/phases are now unlocked!");
+}
+
+void Creative(void* player, SML::CommandParser::CommandData data) {
+	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
+
+	if (creativeMode) {
+		gamestate->SetCheatNoCost(false);
+		gamestate->SetCheatNoPower(false);
+
+		sendMessage(L"Creative-Mode disabled!");
+	}
+	else {
+		gamestate->SetCheatNoCost(true);
+		gamestate->SetCheatNoPower(true);
+
+		sendMessage(L"Creative-Mode enabled!");
+	}
+
+	creativeMode = !creativeMode;
+}
+
+void SetTimeDilation(void* player, SML::CommandParser::CommandData data) {
+	if (data.Args.size() < 1) {
+		sendMessage(L"Use /settimedilation <dilation>");
+		return;
+	}
+		
+	if (!is_float(data.Args[0])) {
+		sendMessage(L"dilation must be a number");
+		return;
+	}
+
+	float dilation = data.get_float(0);
+
+	if (dilation <= 0) {
+		sendMessage(L"dilation must be greater than 0");
+		return;
+	}
+
+	Global::m_persistentLevel->WorldSettings->TimeDilation = dilation;
+	sendMessage(L"Time dilation set!");
+}
 
 void GiveItem(void* player, SML::CommandParser::CommandData data) {
 	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
@@ -304,12 +405,10 @@ void Fly(void* player, SML::CommandParser::CommandData data) {
 	if (isFlying) {
 		character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
 		sendMessage(L"Fly-Mode disabled");
-		SML::mod_info(mod->Name(), "Walk Mode");
 	}
 	else {
 		character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
 		sendMessage(L"Fly-Mode enabled");
-		SML::mod_info(mod->Name(), "Fly Mode");
 	}
 
 	isFlying = !isFlying;
@@ -365,6 +464,9 @@ void Help(void* player, SML::CommandParser::CommandData data) {
 	sendMessage(L"/fly");
 	sendMessage(L"/flyspeed <speed>");
 	sendMessage(L"/god");
+	sendMessage(L"/settimedilation <dilation>");
+	sendMessage(L"/creative");
+	sendMessage(L"/unlockall");
 }
 
 /// World Tick
@@ -473,11 +575,12 @@ void ExampleMod::Setup() {
 	// Subscribe to events
 	SML::mod_info(mod->Name(), "Subscribing to events...");
 
-	_dispatcher.subscribe(SML::HookLoader::Event::AFGPlayerControllerBeginPlay, WorldInit);
+	_dispatcher.subscribe(SML::HookLoader::Event::AFGCharacterPlayerBeginPlay, WorldInit);
 	_dispatcher.subscribe(SML::HookLoader::Event::AFGPlayerControllerEnterChatMessage, GetMessage);
 	_dispatcher.subscribe(SML::HookLoader::Event::WorldTick, Tick);
 	_dispatcher.subscribe(SML::HookLoader::Event::UFGHealthComponentTakeDamage, OnTakeDamage);
 	_dispatcher.subscribe(SML::HookLoader::Event::UPlayerInputInputKey, OnKeyInput);
+	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
 
 	// SDK Init
 	SML::mod_info(mod->Name(), "Initializing the sdk...");
@@ -504,6 +607,9 @@ void ExampleMod::Setup() {
 	commandSystem.RegisterCommand("flyspeed", FlySpeed);
 	commandSystem.RegisterCommand("god", God);
 	commandSystem.RegisterCommand("help", Help);
+	commandSystem.RegisterCommand("settimedilation", SetTimeDilation);
+	commandSystem.RegisterCommand("creative", Creative);
+	commandSystem.RegisterCommand("unlockall", UnlockAllSchematics);
 
 	SML::mod_info(mod->Name(), "Initializing complete!");
 }

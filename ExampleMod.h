@@ -15,7 +15,7 @@ public:
 		return "UtilityMod"; 
 	};
 	const char* Version() { 
-		return "0.3.1"; 
+		return "0.3.2"; 
 	};
 	const char* Description() { 
 		return "Adds several commands"; 
