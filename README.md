@@ -16,4 +16,10 @@ This mod is under development!
 /god
 
 /give <itemname> <amount>    (WIP)
+
+/settimedilation <dilation>
+
+/creative
+
+/unlockall
 ```
