@@ -33,6 +33,9 @@ The default dilation is 1.
 #### /creative    (toggleable)
 You can build what you want without having to collect resources.
 
+#### /creativepower    (toggleable)
+Every machine will have power
+
 #### /unlockall
 It unlocks all schematics.
 You cannot undo it!
@@ -40,7 +43,6 @@ You cannot undo it!
 #### /togglebuildrestriction    (toggleable)
 It toggles the build restriction.
 For example: cost, terrain collision, building collision, valid shape
-If connect cables to nothing, it will crash your game! (It will be fixed soon)
 
 #### /noclip    (toggleable)
 Player collision checks are ignored.
