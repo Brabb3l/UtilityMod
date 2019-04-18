@@ -31,24 +31,24 @@ void Events::GetMessage(SML::ModReturns* returns, void* player, std::string mess
 }
 
 void Events::OnKeyInput(SML::ModReturns* returns, void* input, void* key, void* event, float amountDepressed, bool gamepad) {
-	// TODO: Check if the chat is not focused
-
-	/*if (GetAsyncKeyState(flyHotkey) & 0x8000) {
+	if (Global::m_LocalPlayer->PlayerController != nullptr && Global::m_LocalPlayer->PlayerController->Character != nullptr) {
 		auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-		if (isFlying) {
-			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
-			sendMessage(L"Fly-Mode disabled");
-			SML::mod_info(UtilityMod::name, "Walk Mode");
-		}
-		else {
-			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
-			sendMessage(L"Fly-Mode enabled");
-			SML::mod_info(UtilityMod::name, "Fly Mode");
-		}
+		if (GetAsyncKeyState(Config::flyHotkey) & 0x8000) {
+			auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-		isFlying = !isFlying;
-	}*/
+			if (CommandStates::isFlying) {
+				character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
+				Util::sendMessage(L"Fly-Mode disabled");
+			}
+			else {
+				character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
+				Util::sendMessage(L"Fly-Mode enabled");
+			}
+
+			CommandStates::isFlying = !CommandStates::isFlying;
+		}
+	}
 }
 
 void Events::OnTakeDamage(SML::ModReturns* returns, void* healthComponent, void* damagedActor, float damageAmount, void* damageType, void* instigatedBy, void* damageCauser) {
@@ -144,8 +144,13 @@ void Events::OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
 }
 */
 
-void Events::WireConnect(SML::ModReturns* returns, void* buildable, void* node) {
-	if (node == nullptr)
+void Events::PawnAddMovementInput(SML::ModReturns* returns, void *pawn, void* WorldDirection, float ScaleValue, bool bForce) {
+	if (CommandStates::isFlying)
+		returns->UseOriginalFunction = false;
+}
+
+void Events::WireConnect(SML::ModReturns* returns, void* wire, void* first, void* second) {
+	if (first == nullptr || second == nullptr)
 		returns->UseOriginalFunction = false;
 }
 
@@ -171,10 +176,13 @@ void Events::Tick(SML::ModReturns* returns, void* world, void* TickType, float D
 		if (Global::m_LocalPlayer->PlayerController != nullptr && Global::m_LocalPlayer->PlayerController->Character != nullptr) {
 			auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-			if (!character->CharacterMovement->IsFlying()) // Reenable flymode if player dies
+			if (!character->CharacterMovement->IsFlying()) { // Reenable flymode if player dies
 				character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
+			}
 
 			if (isFocused) {
+				auto controller = static_cast<AFGPlayerController*>(Global::m_LocalPlayer->PlayerController);
+
 				bool speed = GetAsyncKeyState(Config::speedkey);
 
 				bool down = GetAsyncKeyState(Config::downkey);
@@ -185,8 +193,7 @@ void Events::Tick(SML::ModReturns* returns, void* world, void* TickType, float D
 				bool right = GetAsyncKeyState(Config::rightkey);
 				bool left = GetAsyncKeyState(Config::leftkey);
 
-				if (down || up || forward || backward || right || left) {
-					auto controller = static_cast<AFGPlayerController*>(Global::m_LocalPlayer->PlayerController);
+				if ((down || up || forward || backward || right || left) && controller->bShowMouseCursor == 0) {
 
 					FRotator CameraRotation = controller->PlayerCameraManager->GetCameraRotation();
 					FVector MoveVector = FVector();

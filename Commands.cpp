@@ -62,18 +62,33 @@ void Commands::UnlockAllSchematics(void* player, SML::CommandParser::CommandData
 	Util::sendMessage(L"All schematics/phases are now unlocked!");
 }
 
+void Commands::CreativePower(void* player, SML::CommandParser::CommandData data) {
+	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
+
+	if (CommandStates::creativePowerMode) {
+		gamestate->SetCheatNoPower(false);
+
+		Util::sendMessage(L"CreativePower-Mode disabled!");
+	}
+	else {
+		gamestate->SetCheatNoPower(true);
+
+		Util::sendMessage(L"CreativePower-Mode enabled!");
+	}
+
+	CommandStates::creativePowerMode = !CommandStates::creativePowerMode;
+}
+
 void Commands::Creative(void* player, SML::CommandParser::CommandData data) {
 	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
 
 	if (CommandStates::creativeMode) {
 		gamestate->SetCheatNoCost(false);
-		gamestate->SetCheatNoPower(false);
 
 		Util::sendMessage(L"Creative-Mode disabled!");
 	}
 	else {
 		gamestate->SetCheatNoCost(true);
-		gamestate->SetCheatNoPower(true);
 
 		Util::sendMessage(L"Creative-Mode enabled!");
 	}
@@ -198,6 +213,7 @@ void Commands::Help(void* player, SML::CommandParser::CommandData data) {
 	Util::sendMessage(L"- /god");
 	Util::sendMessage(L"- /settimedilation <dilation>");
 	Util::sendMessage(L"- /creative");
+	Util::sendMessage(L"- /creativepower");
 	Util::sendMessage(L"- /unlockall");
 	Util::sendMessage(L"- /togglebuildrestriction");
 	Util::sendMessage(L"- /noclip");

@@ -33,6 +33,7 @@ public:
 	static bool isFlying;
 	static bool godMode;
 	static bool creativeMode;
+	static bool creativePowerMode;
 	static bool ignoreBuildRestriction;
 	static bool noClip;
 

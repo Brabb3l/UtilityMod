@@ -38,6 +38,7 @@ double Config::flyspeedmodemultiplier, Config::baseflyspeed;
 bool CommandStates::isFlying = false;
 bool CommandStates::godMode = false;
 bool CommandStates::creativeMode = false;
+bool CommandStates::creativePowerMode = false;
 bool CommandStates::ignoreBuildRestriction = false;
 bool CommandStates::noClip = false;
 bool CommandStates::unlockAllSchematicsConfirmation = false;

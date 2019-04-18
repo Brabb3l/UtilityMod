@@ -86,6 +86,7 @@ void UtilityMod::Setup() {
 	_dispatcher.subscribe(SML::HookLoader::Event::ResourceExtractorSetResourceNode, Events::BuildableSetResourceNode);
 	_dispatcher.subscribe(SML::HookLoader::Event::GeoThermalSetResourceNode, Events::BuildableSetResourceNode);
 	_dispatcher.subscribe(SML::HookLoader::Event::WireConnect, Events::WireConnect);
+	_dispatcher.subscribe(SML::HookLoader::Event::PawnAddMovementInput, Events::PawnAddMovementInput);
 	
 	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
 
@@ -99,6 +100,7 @@ void UtilityMod::Setup() {
 	UtilityMod::commandSystem.RegisterCommand("help", Commands::Help);
 	UtilityMod::commandSystem.RegisterCommand("settimedilation", Commands::SetTimeDilation);
 	UtilityMod::commandSystem.RegisterCommand("creative", Commands::Creative);
+	UtilityMod::commandSystem.RegisterCommand("creativepower", Commands::CreativePower);
 	UtilityMod::commandSystem.RegisterCommand("unlockall", Commands::UnlockAllSchematics);
 	UtilityMod::commandSystem.RegisterCommand("togglebuildrestriction", Commands::IgnoreBuildRestriction);
 	UtilityMod::commandSystem.RegisterCommand("noclip", Commands::NoClip);
