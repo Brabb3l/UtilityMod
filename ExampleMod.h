@@ -20,7 +20,7 @@ public:
 		return name;
 	};
 	const char* Version() { 
-		return "0.4.0"; 
+		return "0.4.1"; 
 	};
 	const char* Description() { 
 		return "Adds several commands"; 
