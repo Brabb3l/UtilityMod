@@ -1,40 +1,26 @@
 #pragma once
 
-//#include <algorithm>
-//#include <stdio.h>
-//#include <ctype.h>
-//#include <math.h>
-//#include <thread>
-
-//#include <utility/Connection.h>
-//#include <utility/Dispatcher.h>
 #include <utility/Logger.h>
 #include <utility/Configuration.h>
 
-//#include <events/PlayerEvents.h>
-
-//#include <other/CommandParser.h>
 #include <other/CommandSystem.h>
 #include <other/BaseMod.h>
 
-//#include "sdk/SDK.hpp"
-
-//#include "Internals.h"
-
-//#include "Util.h"
-//#include "Global.h"
-//#include "Events.h"
-//#include "Commands.h"
-
-class ExampleMod : SML::BaseMod {
+class UtilityMod : SML::BaseMod {
 public:
 	SML::Globals* globalsReference;
 
-	const char* Name() { 
-		return "UtilityMod"; 
+	static const char* name;
+
+	static UtilityMod* mod;
+	static SML::CommandSystem commandSystem;
+	static SML::Configuration config;
+
+	const char* Name() {
+		return name;
 	};
 	const char* Version() { 
-		return "0.3.3"; 
+		return "0.4.0"; 
 	};
 	const char* Description() { 
 		return "Adds several commands"; 
@@ -62,10 +48,4 @@ protected:
 	void Setup();
 };
 
-static ExampleMod* mod;
-static SML::CommandSystem commandSystem;
-static SML::Configuration* config;
-
-GLOBAL ExampleMod* CreateMod() {
-	return new ExampleMod;
-}
+GLOBAL UtilityMod* CreateMod();

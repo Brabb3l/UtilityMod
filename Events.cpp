@@ -16,17 +16,17 @@ void Events::GetMessage(SML::ModReturns* returns, void* player, std::string mess
 		return;
 
 	SML::CommandParser::CommandData data = SML::CommandParser::Parse(message);
-	SML::Command command = commandSystem.get_command(data.Command);
+	SML::Command command = UtilityMod::commandSystem.get_command(data.Command);
 
 	if (!command.Empty) {
-		SML::mod_info(mod->Name(), "Invoking Command: ", data.Command);
+		SML::mod_info(UtilityMod::name, "Invoking Command: ", data.Command);
 
 		command.Invoke(player, data);
 
 		returns->UseOriginalFunction = false;
 	}
 	else {
-		SML::mod_info(mod->Name(), "Invalid Command: ", data.Command);
+		SML::mod_info(UtilityMod::name, "Invalid Command: ", data.Command);
 	}
 }
 
@@ -39,12 +39,12 @@ void Events::OnKeyInput(SML::ModReturns* returns, void* input, void* key, void* 
 		if (isFlying) {
 			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
 			sendMessage(L"Fly-Mode disabled");
-			SML::mod_info(mod->Name(), "Walk Mode");
+			SML::mod_info(UtilityMod::name, "Walk Mode");
 		}
 		else {
 			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
 			sendMessage(L"Fly-Mode enabled");
-			SML::mod_info(mod->Name(), "Fly Mode");
+			SML::mod_info(UtilityMod::name, "Fly Mode");
 		}
 
 		isFlying = !isFlying;
@@ -64,7 +64,7 @@ void Events::OnTakeDamage(SML::ModReturns* returns, void* healthComponent, void*
 
 	UDamageType type = *(UDamageType*)damageType;
 
-	//SML::mod_info(mod->Name(), "Detected Damage: ", type.GetName()); // Log damage type
+	//SML::mod_info(UtilityMod::name, "Detected Damage: ", type.GetName()); // Log damage type
 
 	// God Mode
 	if (CommandStates::godMode) {
@@ -89,7 +89,7 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 	std::map<std::string, UBlueprintGeneratedClass*> foundItems;
 	std::map<std::string, UFont*> foundFonts;
 
-	SML::mod_info(mod->Name(), "Caching global objects...");
+	SML::mod_info(UtilityMod::name, "Caching global objects...");
 
 	auto gObjects = UObject::GetGlobalObjects();
 	int num = gObjects.Num();
@@ -115,16 +115,16 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 
 					foundItems.insert({ itemName, (UBlueprintGeneratedClass*)object });
 
-					SML::mod_info(mod->Name(), "Found item: " + itemName);
+					SML::mod_info(UtilityMod::name, "Found item: " + itemName);
 				}
 			}
 		}
 	}
 
-	SML::mod_info(mod->Name(), "Total Fonts: ", foundFonts.size());
-	SML::mod_info(mod->Name(), "Total Items: ", foundItems.size());
-	SML::mod_info(mod->Name(), "Total GObjects: ", num);
-	SML::mod_info(mod->Name(), "Caching complete!");
+	SML::mod_info(UtilityMod::name, "Total Fonts: ", foundFonts.size());
+	SML::mod_info(UtilityMod::name, "Total Items: ", foundItems.size());
+	SML::mod_info(UtilityMod::name, "Total GObjects: ", num);
+	SML::mod_info(UtilityMod::name, "Caching complete!");
 
 	Global::fonts = foundFonts;
 	Global::items = foundItems;

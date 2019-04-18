@@ -13,22 +13,39 @@ This mod is under development!
 
 ## Commands
 
-```
-/help
+#### /help
+It shows a list of commands.
 
-/fly
+#### /fly    (toggleable)
+It will give you the ability to fly.
 
-/flyspeed <speed>
+#### /flyspeed <speed>
+Sets the fly speed.
+The default speed is 1.
 
-/god
+#### /god    (toggleable)
+You will take no more damage.
 
-/give <itemname> <amount>    (WIP)
+#### /settimedilation <dilation>
+It speeds up/slows down everything (movement, factory, etc.)
+The default dilation is 1.
 
-/settimedilation <dilation>
+#### /creative    (toggleable)
+You can build what you want without having to collect resources.
 
-/creative
+#### /unlockall
+It unlocks all schematics.
+You cannot undo it!
 
-/unlockall
+#### /togglebuildrestriction    (toggleable)
+It toggles the build restriction.
+For example: cost, terrain collision, building collision, valid shape
+If connect cables to nothing, it will crash your game! (It will be fixed soon)
 
-/togglebuildrestriction
-```
+#### /noclip    (toggleable)
+Player collision checks are ignored.
+
+### WIP
+
+#### /give <itemname> <amount>
+Adds the specified item to your inventory.

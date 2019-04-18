@@ -6,7 +6,7 @@
 
 void Global::InitializeGlobals() {
 	if ((*Global::m_UWorld) == nullptr) {
-		SML::mod_warning(mod->Name(), "World not found!");
+		SML::mod_warning(UtilityMod::name, "World not found!");
 		return;
 	}
 

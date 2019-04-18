@@ -87,7 +87,7 @@ int Util::GetKey(const std::string& key) {
 		}
 	}
 
-	SML::mod_warning(mod->Name(), "Unable to find key '" + key + "'");
+	SML::mod_warning(UtilityMod::name, "Unable to find key '" + key + "'");
 
 	return 0;
 }

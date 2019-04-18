@@ -114,7 +114,7 @@ void Commands::GiveItem(void* player, SML::CommandParser::CommandData data) {
 		return;
 	}
 
-	if (Global::items.find(data.get_string(0)) == Global::items.end()) {
+	if (Global::items.find(data.get_string(0) + "_C") == Global::items.end()) {
 		Util::sendMessage(L"This Item does not exist.");
 		return;
 	}
