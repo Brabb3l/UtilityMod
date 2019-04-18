@@ -1,11 +1,30 @@
 #pragma once
 
-#include <other/BaseMod.h>
-#include <utility/Connection.h>
-#include <utility/Dispatcher.h>
+//#include <algorithm>
+//#include <stdio.h>
+//#include <ctype.h>
+//#include <math.h>
+//#include <thread>
+
+//#include <utility/Connection.h>
+//#include <utility/Dispatcher.h>
 #include <utility/Logger.h>
-#include <other/CommandParser.h>
+#include <utility/Configuration.h>
+
+//#include <events/PlayerEvents.h>
+
+//#include <other/CommandParser.h>
 #include <other/CommandSystem.h>
+#include <other/BaseMod.h>
+
+//#include "sdk/SDK.hpp"
+
+//#include "Internals.h"
+
+//#include "Util.h"
+//#include "Global.h"
+//#include "Events.h"
+//#include "Commands.h"
 
 class ExampleMod : SML::BaseMod {
 public:
@@ -42,6 +61,10 @@ public:
 protected:
 	void Setup();
 };
+
+static ExampleMod* mod;
+static SML::CommandSystem commandSystem;
+static SML::Configuration* config;
 
 GLOBAL ExampleMod* CreateMod() {
 	return new ExampleMod;

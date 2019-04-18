@@ -15,12 +15,20 @@
     <ClCompile Include="sdk\SDK\SF_Basic.cpp">
       <Filter>sdk</Filter>
     </ClCompile>
+    <ClCompile Include="Events.cpp" />
+    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Commands.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExampleMod.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="sdk\SDK.hpp" />
+    <ClInclude Include="Events.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="Commands.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="sdk">

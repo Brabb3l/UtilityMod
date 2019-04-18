@@ -154,13 +154,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Commands.h" />
+    <ClInclude Include="Events.h" />
     <ClInclude Include="ExampleMod.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="sdk\SDK.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="Events.cpp" />
     <ClCompile Include="ExampleMod.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="sdk\SDK\SF_Basic.cpp" />
     <ClCompile Include="sdk\SDK\SF_CoreUObject_functions.cpp" />
     <ClCompile Include="sdk\SDK\SF_Engine_functions.cpp" />
@@ -171,6 +178,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SatisfactoryModLoader.vcxproj">

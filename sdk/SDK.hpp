@@ -1633,3 +1633,5 @@
 #include "SDK/SF_BP_MaterialEffect_ConveyorBuild_classes.hpp"
 #include "SDK/SF_BP_MaterialEffect_WireBuild_classes.hpp"
 #include "SDK/SF_BP_BuildEffect_Wire_classes.hpp"
+
+using namespace SDK;

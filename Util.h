@@ -1,0 +1,14 @@
+#pragma once
+
+#include "sdk/SDK.hpp"
+
+class Util {
+public:
+	static bool startsWith(const std::string& str, const std::string& start);
+	static bool is_number(const std::string& s);
+	static bool is_float(const std::string &in);
+	static void sendMessage(std::wstring msg);
+	static FVector AngleToDirectionalVector(double angle);
+	static int GetKey(const std::string& key);
+	static FInventoryStack MakeItemStack(const std::string& itemname, const int& amount);
+};
