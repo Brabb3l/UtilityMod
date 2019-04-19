@@ -34,7 +34,7 @@ The default dilation is 1.
 You can build what you want without having to collect resources.
 
 #### /creativepower    (toggleable)
-Every machine will have power
+Every machine will have power.
 
 #### /unlockall
 It unlocks all schematics.
@@ -47,7 +47,24 @@ For example: cost, terrain collision, building collision, valid shape
 #### /noclip    (toggleable)
 Player collision checks are ignored.
 
+#### /time [set/add] [day/night/minutes]
+It changes/displays time.
+
+##### /time
+It sends the current time in chat with the `hh:mm` format.
+
+##### /time set <day/night/minutes>
+It sets the time to the specified parameter.
+Day is 0 o'clock a.m. and night is 0 o'clock p.m.
+
+##### /time add <minutes>
+Adds minutes to the current time.
+
+#### /locktime    (toggleable)
+Locks the current time. (only the sky)
+
 ### WIP
 
 #### /give <itemname> <amount>
 Adds the specified item to your inventory.
+Note: append `_C` to the itemname
