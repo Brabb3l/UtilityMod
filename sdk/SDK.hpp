@@ -1,6 +1,6 @@
 #pragma once
 
-// Satisfactory (V0.103) SDK
+// Satisfactory SDK (V0.103 - CL#96731)
 
 #include "SDK/SF_Basic.hpp"
 

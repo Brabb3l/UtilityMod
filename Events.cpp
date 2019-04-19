@@ -92,9 +92,14 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 	SML::mod_info(UtilityMod::name, "Caching global objects...");
 
 	auto gObjects = UObject::GetGlobalObjects();
-	int num = gObjects.Num();
+	
+	for (int i = 0; i < gObjects.Num(); i++) {
+		if (gObjects.GetObjectPtr(i) == nullptr) {
+			SML::mod_warning(UtilityMod::name, "GObject pointer was a nullptr");
+			SML::mod_warning(UtilityMod::name, "skipping ", gObjects.Num() - i, " objects");
+			break;
+		}
 
-	for (int i = 0; i < num; i++) {
 		auto objectItem = gObjects.GetByIndex(i);
 
 		if (objectItem.Object != nullptr) {
@@ -123,7 +128,7 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 
 	SML::mod_info(UtilityMod::name, "Total Fonts: ", foundFonts.size());
 	SML::mod_info(UtilityMod::name, "Total Items: ", foundItems.size());
-	SML::mod_info(UtilityMod::name, "Total GObjects: ", num);
+	SML::mod_info(UtilityMod::name, "Total GObjects: ", gObjects.Num());
 	SML::mod_info(UtilityMod::name, "Caching complete!");
 
 	Global::fonts = foundFonts;
@@ -133,16 +138,22 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 // WIP
 /*
 void Events::OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
-	if (fonts.size() < 1)
+	if (Global::fonts.size() < 1)
 		return;
 
 	AHUD* hud = (AHUD*)hudptr;
 
 	hud->DrawRect(FLinearColor(0, 0, 0, 0), 0, 200, 200, 300);
 	hud->DrawLine(20, 250, 180, 250, FLinearColor(1, 1, 1, 1), 2);
-	hud->DrawText(FString(L"Some title"), FLinearColor(1, 1, 1, 1), 40, 220, fonts.at("FactoryFont"), 1, false);
+	hud->DrawText(FString(L"Some title"), FLinearColor(1, 1, 1, 1), 40, 220, Global::fonts.at("FactoryFont"), 1, false);
+	hud->DrawText(FString(L""), FLinearColor(1, 1, 1, 1), 40, 280, Global::fonts.at("FactoryFont"), 1, false);
+}*/
+
+
+void Events::WorkBenchCanProduce(SML::ModReturns* returns, void* workbench, void* recipe, void* inventory) {
+	returns->ReturnValue = &CommandStates::creativeMode;
+	returns->UseOriginalFunction = !CommandStates::creativeMode;
 }
-*/
 
 void Events::PawnAddMovementInput(SML::ModReturns* returns, void *pawn, void* WorldDirection, float ScaleValue, bool bForce) {
 	if (CommandStates::isFlying)

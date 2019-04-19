@@ -14,5 +14,6 @@ public:
 	static void ResourceNodeIsOccupied(SML::ModReturns* returns, void* node);
 	static void CanConstructHologram(SML::ModReturns* returns, void* hologram);
 	static void Tick(SML::ModReturns* returns, void* world, void* TickType, float DeltaSeconds);
+	static void WorkBenchCanProduce(SML::ModReturns * returns, void * workbench, void * recipe, void * inventory);
 	static void PawnAddMovementInput(SML::ModReturns * returns, void * pawn, void * WorldDirection, float ScaleValue, bool bForce);
 };

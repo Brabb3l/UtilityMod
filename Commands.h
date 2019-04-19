@@ -4,6 +4,9 @@
 
 class Commands {
 public:
+	static void LockTime(void * player, SML::CommandParser::CommandData data);
+	static void Time(void * player, SML::CommandParser::CommandData data);
+	static void SetDismantleDelay(void * player, SML::CommandParser::CommandData data);
 	static void NoClip(void * player, SML::CommandParser::CommandData data);
 	static void IgnoreBuildRestriction(void* player, SML::CommandParser::CommandData data);
 	static void UnlockAllSchematics(void* player, SML::CommandParser::CommandData data);

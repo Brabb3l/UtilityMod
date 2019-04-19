@@ -87,23 +87,27 @@ void UtilityMod::Setup() {
 	_dispatcher.subscribe(SML::HookLoader::Event::GeoThermalSetResourceNode, Events::BuildableSetResourceNode);
 	_dispatcher.subscribe(SML::HookLoader::Event::WireConnect, Events::WireConnect);
 	_dispatcher.subscribe(SML::HookLoader::Event::PawnAddMovementInput, Events::PawnAddMovementInput);
+	_dispatcher.subscribe(SML::HookLoader::Event::WorkBenchCanProduce, Events::WorkBenchCanProduce);
 	
 	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
 
 	/// Register commands
 	SML::mod_info(UtilityMod::name, "Registering commands...");
 
+	UtilityMod::commandSystem.RegisterCommand("help", Commands::Help);
 	UtilityMod::commandSystem.RegisterCommand("give", Commands::GiveItem);
 	UtilityMod::commandSystem.RegisterCommand("fly", Commands::Fly);
 	UtilityMod::commandSystem.RegisterCommand("flyspeed", Commands::FlySpeed);
 	UtilityMod::commandSystem.RegisterCommand("god", Commands::God);
-	UtilityMod::commandSystem.RegisterCommand("help", Commands::Help);
 	UtilityMod::commandSystem.RegisterCommand("settimedilation", Commands::SetTimeDilation);
 	UtilityMod::commandSystem.RegisterCommand("creative", Commands::Creative);
 	UtilityMod::commandSystem.RegisterCommand("creativepower", Commands::CreativePower);
 	UtilityMod::commandSystem.RegisterCommand("unlockall", Commands::UnlockAllSchematics);
 	UtilityMod::commandSystem.RegisterCommand("togglebuildrestriction", Commands::IgnoreBuildRestriction);
 	UtilityMod::commandSystem.RegisterCommand("noclip", Commands::NoClip);
+	UtilityMod::commandSystem.RegisterCommand("setdismantledelay", Commands::SetDismantleDelay);
+	UtilityMod::commandSystem.RegisterCommand("time", Commands::Time);
+	UtilityMod::commandSystem.RegisterCommand("locktime", Commands::LockTime);
 
 	SML::mod_info(UtilityMod::name, "Initializing complete!");
 }

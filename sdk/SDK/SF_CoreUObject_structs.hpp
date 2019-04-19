@@ -1,6 +1,6 @@
 #pragma once
 
-// Satisfactory (V0.103) SDK
+// Satisfactory SDK (V0.103 - CL#96731)
 
 #ifdef _MSC_VER
 	#pragma pack(push, 0x8)
@@ -708,14 +708,6 @@ struct FTimespan
 {
 	unsigned char                                      UnknownData00[0x8];                                       // 0x0000(0x0008) MISSED OFFSET
 };
-
-// ScriptStruct CoreUObject.SoftObjectPath
-// 0x0018
-//struct FSoftObjectPath
-//{
-//	struct FName                                       AssetPathName;                                            // 0x0000(0x0008) (ZeroConstructor, IsPlainOldData)
-//	class FString                                      SubPathString;                                            // 0x0008(0x0010) (ZeroConstructor)
-//};
 
 // ScriptStruct CoreUObject.SoftClassPath
 // 0x0000 (0x0018 - 0x0018)

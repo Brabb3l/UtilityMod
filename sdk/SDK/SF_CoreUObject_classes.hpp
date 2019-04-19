@@ -1,6 +1,6 @@
 #pragma once
 
-// Satisfactory (V0.103) SDK
+// Satisfactory SDK (V0.103 - CL#96731)
 
 #ifdef _MSC_VER
 	#pragma pack(push, 0x8)
@@ -75,9 +75,6 @@ public:
 		return ptr;
 	}
 
-	//TODO: find correct vtable index
-	// \x88\x45\x00\x48\x8d\x4d\x20\x48\x8d\x45\x00\x48\x89\x45\x18
-	// xx?xxxxxxx?xxxx
 	inline void ProcessEvent(class UFunction* function, void* parms)
 	{
 		return GetVFunction<void(*)(UObject*, class UFunction*, void*)>(this, 65)(this, function, parms);
