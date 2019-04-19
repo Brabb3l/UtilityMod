@@ -13,9 +13,9 @@ void Commands::LockTime(void * player, SML::CommandParser::CommandData data) {
 	AFGTimeOfDaySubsystem* time = static_cast<AFGTimeOfDaySubsystem*>(static_cast<AFGGameState*>((*Global::m_UWorld)->GameState)->mTimeSubsystem);
 
 	if (time->mUpdateTime) {
-		Util::sendMessage(L"Time unlocked!");
-	} else {
 		Util::sendMessage(L"Time locked!");
+	} else {
+		Util::sendMessage(L"Time unlocked!");
 	}
 
 	time->mUpdateTime = !time->mUpdateTime;
