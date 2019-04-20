@@ -66,12 +66,6 @@ void Events::OnTakeDamage(SML::ModReturns* returns, void* healthComponent, void*
 
 	//SML::mod_info(UtilityMod::name, "Detected Damage: ", type.GetName()); // Log damage type
 
-	// God Mode
-	if (CommandStates::godMode) {
-		returns->UseOriginalFunction = false;
-		return;
-	}
-
 	// Ignore fall damage while flying
 	if (CommandStates::isFlying) {
 		if (type.GetName() == "Default__DamageType_FallDamage_C") {
@@ -149,10 +143,24 @@ void Events::OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
 	hud->DrawText(FString(L""), FLinearColor(1, 1, 1, 1), 40, 280, Global::fonts.at("FactoryFont"), 1, false);
 }*/
 
+void Events::ServerMove_Validate(SML::ModReturns* returns, void *movecomp, float ClientTimeStamp, float DeltaTime, void *Accel, void *RelativeClientLoc, void *ClientMovementBase, void* ClientBaseBoneName, char ClientMovementMode) {
+	returns->UseOriginalFunction = false;
+
+	((UCharacterMovementComponent*)movecomp)->SetMovementMode(TEnumAsByte<EMovementMode>(ClientMovementMode), 0);
+	((UCharacterMovementComponent*)movecomp)->CharacterOwner->K2_SetActorLocation(*(FVector*)RelativeClientLoc, true, false, nullptr);
+}
+
+void Events::ServerCheckClientError(SML::ModReturns* returns, void* movecomp, float ClientTimeStamp, float DeltaTime, void* Accel, void* ClientWorldLocation, void* RelativeClientLocation, void* ClientMovementBase, void* ClientBaseBoneName, char ClientMovementMode) {
+	// not used
+}
 
 void Events::WorkBenchCanProduce(SML::ModReturns* returns, void* workbench, void* recipe, void* inventory) {
-	returns->ReturnValue = &CommandStates::creativeMode;
-	returns->UseOriginalFunction = !CommandStates::creativeMode;
+	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
+
+	bool active = gamestate->GetCheatNoCost();
+
+	returns->ReturnValue = &active;
+	returns->UseOriginalFunction = !gamestate->GetCheatNoCost();
 }
 
 void Events::PawnAddMovementInput(SML::ModReturns* returns, void *pawn, void* WorldDirection, float ScaleValue, bool bForce) {

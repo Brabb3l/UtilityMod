@@ -9,6 +9,67 @@
 
 #include <math.h>
 
+void Commands::ClearInventory(void* player, SML::CommandParser::CommandData data) {
+	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
+		return;
+
+	auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
+
+	character->mInventory->Empty();
+
+	Util::sendMessage(L"Your inventory has been emptied!");
+}
+
+void Commands::ResizeInventory(void* player, SML::CommandParser::CommandData data) {
+	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
+		return;
+
+	auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
+	auto gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
+
+	if (data.Args.size() < 1) {
+		Util::sendMessage(L"Use /resizeinv <size>");
+		return;
+	}
+
+	if (!Util::is_number(data.Args[0])) {
+		Util::sendMessage(L"size must be a number!");
+		return;
+	}
+
+	int size = data.get_int(0);
+
+	if (size < 16) {
+		character->mInventory->mDefaultInventorySize = size;
+		character->mInventory->mAdjustedSizeDiff = 0;
+
+		gamestate->mDefaultPlayerInventorySlots = size;
+		gamestate->mNumAdditionalInventorySlots = 0;
+	}
+	else {
+		character->mInventory->mDefaultInventorySize = 16;
+		character->mInventory->mAdjustedSizeDiff = size - 16;
+
+		gamestate->mDefaultPlayerInventorySlots = 16;
+		gamestate->mNumAdditionalInventorySlots = size - 16;
+	}
+
+	character->mInventory->Resize(data.get_int(0));
+
+	Util::sendMessage(L"Your inventory was resized!");
+}
+
+void Commands::Heal(void* player, SML::CommandParser::CommandData data) {
+	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
+		return;
+
+	auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
+
+	character->GetHealthComponent()->Heal(character->GetHealthComponent()->mMaxHealth - character->GetHealthComponent()->mCurrentHealth);
+
+	Util::sendMessage(L"You've been healed!");
+}
+
 void Commands::LockTime(void * player, SML::CommandParser::CommandData data) {
 	AFGTimeOfDaySubsystem* time = static_cast<AFGTimeOfDaySubsystem*>(static_cast<AFGGameState*>((*Global::m_UWorld)->GameState)->mTimeSubsystem);
 
@@ -204,7 +265,7 @@ void Commands::CreativePower(void* player, SML::CommandParser::CommandData data)
 void Commands::Creative(void* player, SML::CommandParser::CommandData data) {
 	AFGGameState* gamestate = static_cast<AFGGameState*>((*Global::m_UWorld)->GameState);
 
-	if (CommandStates::creativeMode) {
+	if (gamestate->GetCheatNoCost()) {
 		gamestate->SetCheatNoCost(false);
 
 		Util::sendMessage(L"Creative-Mode disabled!");
@@ -214,8 +275,6 @@ void Commands::Creative(void* player, SML::CommandParser::CommandData data) {
 
 		Util::sendMessage(L"Creative-Mode enabled!");
 	}
-
-	CommandStates::creativeMode = !CommandStates::creativeMode;
 }
 
 void Commands::SetTimeDilation(void* player, SML::CommandParser::CommandData data) {
@@ -315,14 +374,15 @@ void Commands::God(void* player, SML::CommandParser::CommandData data) {
 
 	auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-	if (CommandStates::godMode) {
-		Util::sendMessage(L"God-Mode disabled");
+	if (character->bCanBeDamaged) {
+		Util::sendMessage(L"God-Mode enabled");
+		character->GetHealthComponent()->Heal(character->GetHealthComponent()->mMaxHealth - character->GetHealthComponent()->mCurrentHealth);
 	}
 	else {
-		Util::sendMessage(L"God-Mode enabled");
+		Util::sendMessage(L"God-Mode disabled");
 	}
 
-	CommandStates::godMode = !CommandStates::godMode;
+	character->bCanBeDamaged = !character->bCanBeDamaged;
 }
 
 void Commands::Help(void* player, SML::CommandParser::CommandData data) {
@@ -342,4 +402,7 @@ void Commands::Help(void* player, SML::CommandParser::CommandData data) {
 	Util::sendMessage(L"- /setdismantledelay");
 	Util::sendMessage(L"- /time [set/add] [day/night/minutes]");
 	Util::sendMessage(L"- /locktime");
+	Util::sendMessage(L"- /heal");
+	Util::sendMessage(L"- /resizeinv");
+	Util::sendMessage(L"- /clearinv");
 }

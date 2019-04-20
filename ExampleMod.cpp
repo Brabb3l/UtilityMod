@@ -88,6 +88,8 @@ void UtilityMod::Setup() {
 	_dispatcher.subscribe(SML::HookLoader::Event::WireConnect, Events::WireConnect);
 	_dispatcher.subscribe(SML::HookLoader::Event::PawnAddMovementInput, Events::PawnAddMovementInput);
 	_dispatcher.subscribe(SML::HookLoader::Event::WorkBenchCanProduce, Events::WorkBenchCanProduce);
+	_dispatcher.subscribe(SML::HookLoader::Event::ServerMove_Validate, Events::ServerMove_Validate);
+	_dispatcher.subscribe(SML::HookLoader::Event::ServerCheckClientError, Events::ServerCheckClientError);
 	
 	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
 
@@ -108,6 +110,9 @@ void UtilityMod::Setup() {
 	UtilityMod::commandSystem.RegisterCommand("setdismantledelay", Commands::SetDismantleDelay);
 	UtilityMod::commandSystem.RegisterCommand("time", Commands::Time);
 	UtilityMod::commandSystem.RegisterCommand("locktime", Commands::LockTime);
+	UtilityMod::commandSystem.RegisterCommand("heal", Commands::Heal);
+	UtilityMod::commandSystem.RegisterCommand("resizeinv", Commands::ResizeInventory);
+	UtilityMod::commandSystem.RegisterCommand("clearinv", Commands::ClearInventory);
 
 	SML::mod_info(UtilityMod::name, "Initializing complete!");
 }

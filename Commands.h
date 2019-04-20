@@ -4,6 +4,9 @@
 
 class Commands {
 public:
+	static void ClearInventory(void * player, SML::CommandParser::CommandData data);
+	static void ResizeInventory(void * player, SML::CommandParser::CommandData data);
+	static void Heal(void * player, SML::CommandParser::CommandData data);
 	static void LockTime(void * player, SML::CommandParser::CommandData data);
 	static void Time(void * player, SML::CommandParser::CommandData data);
 	static void SetDismantleDelay(void * player, SML::CommandParser::CommandData data);

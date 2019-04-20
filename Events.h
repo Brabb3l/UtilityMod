@@ -14,6 +14,8 @@ public:
 	static void ResourceNodeIsOccupied(SML::ModReturns* returns, void* node);
 	static void CanConstructHologram(SML::ModReturns* returns, void* hologram);
 	static void Tick(SML::ModReturns* returns, void* world, void* TickType, float DeltaSeconds);
+	static void ServerMove_Validate(SML::ModReturns * returns, void *movecomp, float ClientTimeStamp, float DeltaTime, void *Accel, void *RelativeClientLoc, void *ClientMovementBase, void* ClientBaseBoneName, char ClientMovementMode);
+	static void ServerCheckClientError(SML::ModReturns * returns, void * movecomp, float ClientTimeStamp, float DeltaTime, void * Accel, void * ClientWorldLocation, void * RelativeClientLocation, void * ClientMovementBase, void * ClientBaseBoneName, char ClientMovementMode);
 	static void WorkBenchCanProduce(SML::ModReturns * returns, void * workbench, void * recipe, void * inventory);
 	static void PawnAddMovementInput(SML::ModReturns * returns, void * pawn, void * WorldDirection, float ScaleValue, bool bForce);
 };
