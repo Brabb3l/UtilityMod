@@ -2,8 +2,11 @@
 
 #include "Events.h"
 
+#include <Psapi.h>
+
 #include <other/CommandParser.h>
 #include <other/CommandSystem.h>
+#include <events/PlayerEvents.h>
 
 #include "Util.h"
 #include "Global.h"
@@ -76,8 +79,6 @@ void Events::OnTakeDamage(SML::ModReturns* returns, void* healthComponent, void*
 }
 
 void Events::WorldInit(SML::ModReturns* returns, void* controller) {
-	Global::InitializeGlobals();
-
 	// Cache global objects
 
 	std::map<std::string, UBlueprintGeneratedClass*> foundItems;
@@ -129,19 +130,54 @@ void Events::WorldInit(SML::ModReturns* returns, void* controller) {
 	Global::items = foundItems;
 }
 
-// WIP
-/*
+/// WIP
+
+bool Events::FirstCall = true;
+
+void Events::OnLoadObject(SML::ModReturns* returns, SDK::FString* PathName, PVOID funcpointer) {
+	auto pointer = (void*(WINAPI*)(FString *))funcpointer;
+	
+	FString str(L"/Game/FactoryGame/Buildable/Factory/ConveyorBeltMk2/UI/ConveyorMk2_256.ConveyorMk2_256");
+
+	void * res = pointer(&str);
+
+	if (res == nullptr) {
+		SML::mod_info(UtilityMod::name, "object not found");
+	}
+}
+
 void Events::OnDrawHUD(SML::ModReturns* returns, void* hudptr) {
-	if (Global::fonts.size() < 1)
-		return;
+	if (Events::FirstCall) {
+		/// SDK Init
+		SML::mod_info(UtilityMod::name, "Initializing the sdk...");
 
-	AHUD* hud = (AHUD*)hudptr;
+		Global::BaseAddress = (DWORD_PTR)GetModuleHandle(nullptr);
+		MODULEINFO info;
+		GetModuleInformation(GetCurrentProcess(), (HMODULE)Global::BaseAddress, &info, sizeof(info));
 
-	hud->DrawRect(FLinearColor(0, 0, 0, 0), 0, 200, 200, 300);
-	hud->DrawLine(20, 250, 180, 250, FLinearColor(1, 1, 1, 1), 2);
-	hud->DrawText(FString(L"Some title"), FLinearColor(1, 1, 1, 1), 40, 220, Global::fonts.at("FactoryFont"), 1, false);
-	hud->DrawText(FString(L""), FLinearColor(1, 1, 1, 1), 40, 280, Global::fonts.at("FactoryFont"), 1, false);
-}*/
+		auto btAddrUWorld = Util::FindPattern((PBYTE)Global::BaseAddress, info.SizeOfImage,
+			(PBYTE) "\x48\x8B\x1D\x00\x00\x00\x04\x48\x85\xDB\x74\x3B",
+			"xxx???xxxxxx");
+		auto btOffUWorld = *reinterpret_cast<uint32_t*>(btAddrUWorld + 3);
+		Global::m_UWorld = reinterpret_cast<UWorld**>(btAddrUWorld + 7 + btOffUWorld);
+
+		auto btAddrGObj = Util::FindPattern((PBYTE)Global::BaseAddress, info.SizeOfImage,
+			(PBYTE) "\x48\x8D\x0D\x00\x00\x00\x04\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x01",
+			"xxx???xx???xx???xx???x");
+		auto btOffGObj = *reinterpret_cast<uint32_t*>(btAddrGObj + 3);
+		UObject::GObjects = reinterpret_cast<FUObjectArray*>(btAddrGObj + 7 + btOffGObj);
+
+		auto btAddrGName = Util::FindPattern((PBYTE)Global::BaseAddress, info.SizeOfImage,
+			(PBYTE) "\x48\x8B\x05\x00\x00\x00\x03\x48\x85\xC0\x0F\x85\xB0",
+			"xxx???xxxxxxx");
+		auto btOffGName = *reinterpret_cast<uint32_t*>(btAddrGName + 3);
+		FName::GNames = *reinterpret_cast<TNameEntryArray**>(btAddrGName + 7 + btOffGName);
+
+		Global::InitializeGlobals();
+
+		Events::FirstCall = false;
+	}
+}
 
 void Events::ServerMove_Validate(SML::ModReturns* returns, void *movecomp, float ClientTimeStamp, float DeltaTime, void *Accel, void *RelativeClientLoc, void *ClientMovementBase, void* ClientBaseBoneName, char ClientMovementMode) {
 	returns->UseOriginalFunction = false;
@@ -190,13 +226,16 @@ void Events::CanConstructHologram(SML::ModReturns* returns, void* hologram) {
 
 void Events::Tick(SML::ModReturns* returns, void* world, void* TickType, float DeltaSeconds) {
 	bool isFocused = GetForegroundWindow() == ::GetActiveWindow();
+	float fixedDeltaTime = 1.f / Config::fixedFrameRate;
 
 	if (CommandStates::isFlying) {
 		if (Global::m_LocalPlayer->PlayerController != nullptr && Global::m_LocalPlayer->PlayerController->Character != nullptr) {
 			auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-			if (!character->CharacterMovement->IsFlying()) { // Reenable flymode if player dies
-				character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
+			UCharacterMovementComponent* moveComponent = character->CharacterMovement;
+
+			if (!moveComponent->IsFlying()) { // Reenable flymode if player dies
+				moveComponent->SetMovementMode(EMovementMode::MOVE_Flying, 0);
 			}
 
 			if (isFocused) {
@@ -213,42 +252,51 @@ void Events::Tick(SML::ModReturns* returns, void* world, void* TickType, float D
 				bool left = GetAsyncKeyState(Config::leftkey);
 
 				if ((down || up || forward || backward || right || left) && controller->bShowMouseCursor == 0) {
+					FVector velocity = FVector();
 
-					FRotator CameraRotation = controller->PlayerCameraManager->GetCameraRotation();
-					FVector MoveVector = FVector();
+					velocity.X = (int)forward - (int)backward;
+					velocity.Y = (int)right - (int)left;
+					velocity.Z = (int)up - (int)down;
 
-					// Movement logic
-					if (forward || backward || right || left) {
-						if (forward && !backward) {
-							int additional = (right ? 45 : 0) + (left ? -45 : 0);
+					// Normalize
+					Util::Normalize(velocity);
 
-							MoveVector = Util::AngleToDirectionalVector(CameraRotation.Yaw + additional);
-						}
-						else if (backward && !forward) {
-							int additional = (right ? -45 : 0) + (left ? 45 : 0);
+					// Rotate
+					velocity = Util::Rotate(velocity, controller->PlayerCameraManager->GetCameraRotation().Yaw);
 
-							MoveVector = Util::AngleToDirectionalVector(CameraRotation.Yaw + 180 + additional);
-						}
-						else if ((backward && forward) || (!backward && !forward)) {
-							MoveVector = Util::AngleToDirectionalVector(CameraRotation.Yaw + (right ? 90 : 0) + (left ? -90 : 0));
-						}
-					}
-
-					// Set up and down movement
-					MoveVector.Z = (up ? 1 : 0) + (down ? -1 : 0);
-
-					// Multiply the MoveVector
-					MoveVector.X *= 1000 * (speed ? Config::flyspeedmodemultiplier : 1) * CommandStates::flySpeed * Config::baseflyspeed;
-					MoveVector.Y *= 1000 * (speed ? Config::flyspeedmodemultiplier : 1) * CommandStates::flySpeed * Config::baseflyspeed;
-					MoveVector.Z *= 1000 * (speed ? Config::flyspeedmodemultiplier : 1) * CommandStates::flySpeed * Config::baseflyspeed;
-
-					character->GetMovementComponent()->Velocity = MoveVector; // Apply velocity
+					// Add speed modifiers
+					velocity = Util::Mutliply(velocity, 10 * (speed ? Config::flyspeedmodemultiplier : 1) * CommandStates::flySpeed * Config::baseflyspeed);
+					
+					// Set target velocity
+					CommandStates::targetVelocity = velocity;
 				}
 				else {
-					// decelerate character to 0
-					character->GetMovementComponent()->Velocity = FVector();
+					CommandStates::targetVelocity = FVector();
 				}
 			}
+			else {
+				CommandStates::targetVelocity = FVector();
+			}
+
+			float deltaTime = 0;
+
+			// deltaseconds or fixeddeltatime?
+			if (Config::flyUseDeltaSeconds)
+				deltaTime = DeltaSeconds;
+			else
+				deltaTime = fixedDeltaTime;
+
+			if (Config::smoothFly) {
+				// Lerp from current velocity to the target velocity
+				FVector tmp = Util::Lerp(moveComponent->Velocity, CommandStates::targetVelocity, deltaTime * Config::flyVelocityDamping);
+				tmp.X = abs(tmp.X) < 0.1 ? 0 : tmp.X;
+				tmp.Y = abs(tmp.Y) < 0.1 ? 0 : tmp.Y;
+				tmp.Z = abs(tmp.Z) < 0.1 ? 0 : tmp.Z;
+				moveComponent->Velocity = tmp;
+			}
+			else
+				// Set current velocity to the target velocity
+				moveComponent->Velocity = CommandStates::targetVelocity;
 		}
 	}
 }

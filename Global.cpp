@@ -32,7 +32,11 @@ std::map<std::string, UFont*> Global::fonts;
 
 // Config defines
 int Config::flyHotkey, Config::forwardkey, Config::backwardkey, Config::leftkey, Config::rightkey, Config::upkey, Config::downkey, Config::speedkey; // keycodes
+// Fly stuff
 double Config::flyspeedmodemultiplier, Config::baseflyspeed;
+bool Config::flyUseDeltaSeconds, Config::smoothFly;
+int Config::fixedFrameRate;
+float Config::flyVelocityDamping;
 
 // CommandStates defines
 bool CommandStates::isFlying = false;
@@ -43,3 +47,4 @@ bool CommandStates::ignoreBuildRestriction = false;
 bool CommandStates::noClip = false;
 bool CommandStates::unlockAllSchematicsConfirmation = false;
 float CommandStates::flySpeed = 1;
+FVector CommandStates::targetVelocity = FVector();

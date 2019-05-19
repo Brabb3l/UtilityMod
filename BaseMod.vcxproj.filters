@@ -19,6 +19,7 @@
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="JsonConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExampleMod.h" />
@@ -29,6 +30,7 @@
     <ClInclude Include="Util.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Commands.h" />
+    <ClInclude Include="JsonConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="sdk">

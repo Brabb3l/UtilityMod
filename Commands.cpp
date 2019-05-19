@@ -277,6 +277,7 @@ void Commands::Creative(void* player, SML::CommandParser::CommandData data) {
 	}
 }
 
+/*
 void Commands::SetTimeDilation(void* player, SML::CommandParser::CommandData data) {
 	if (data.Args.size() < 1) {
 		Util::sendMessage(L"Use /settimedilation <dilation>");
@@ -298,6 +299,7 @@ void Commands::SetTimeDilation(void* player, SML::CommandParser::CommandData dat
 	Global::m_persistentLevel->WorldSettings->TimeDilation = dilation;
 	Util::sendMessage(L"Time dilation set!");
 }
+*/
 
 void Commands::GiveItem(void* player, SML::CommandParser::CommandData data) {
 	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
@@ -331,40 +333,90 @@ void Commands::Fly(void* player, SML::CommandParser::CommandData data) {
 
 	auto character = static_cast<AFGCharacterPlayer*>(Global::m_LocalPlayer->PlayerController->Character);
 
-	if (CommandStates::isFlying) {
-		character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
-		Util::sendMessage(L"Fly-Mode disabled");
-	}
-	else {
-		character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
-		Util::sendMessage(L"Fly-Mode enabled");
-	}
-
-	CommandStates::isFlying = !CommandStates::isFlying;
-}
-
-void Commands::FlySpeed(void* player, SML::CommandParser::CommandData data) {
-	if (Global::m_LocalPlayer->PlayerController == nullptr || Global::m_LocalPlayer->PlayerController->Character == nullptr)
-		return;
-
-	if (data.Args.size() < 1) {
-		Util::sendMessage(L"Use /flyspeed <speed>");
-		return;
-	}
-
-	try {
-		if (Util::is_float(data.Args[0])) {
-			CommandStates::flySpeed = data.get_float(0);
-
-			std::string newspeed = data.get_string(0);
-
-			Util::sendMessage(L"Fly speed set to " + std::wstring(newspeed.begin(), newspeed.end()));
-		} else {
-			Util::sendMessage(L"Speed must be a number");
+	if (data.Args.size() == 0) { // /fly
+		if (CommandStates::isFlying) {
+			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Walking, 0);
+			Util::sendMessage(L"Fly-Mode disabled");
 		}
+		else {
+			character->CharacterMovement->SetMovementMode(EMovementMode::MOVE_Flying, 0);
+			Util::sendMessage(L"Fly-Mode enabled");
+		}
+
+		CommandStates::isFlying = !CommandStates::isFlying;
 	}
-	catch (const std::out_of_range& ex) {
-		Util::sendMessage(L"Speed must be a valid number");
+	else if (data.Args.size() > 0) {
+		std::string subCommand = data.Args[0];
+
+		if (subCommand == "speed") { // /fly speed
+			if (data.Args.size() < 2) {
+				Util::sendMessage(L"Use /fly speed <speed>");
+				return;
+			}
+
+			try {
+				if (Util::is_float(data.Args[1])) {
+					CommandStates::flySpeed = data.get_float(1);
+
+					std::string newspeed = data.get_string(1);
+
+					Util::sendMessage(L"Fly speed set to " + std::wstring(newspeed.begin(), newspeed.end()));
+				}
+				else {
+					Util::sendMessage(L"Speed must be a number");
+				}
+			}
+			catch (const std::out_of_range& ex) {
+				Util::sendMessage(L"Speed must be a valid number");
+			}
+		}
+		else if (subCommand == "mode") { // /fly mode
+			if (data.Args.size() < 2) {
+				Util::sendMessage(L"Use /fly mode <normal/smooth>");
+				return;
+			}
+
+			std::string mode = data.Args[1];
+
+			if (mode == "normal") {
+				Config::smoothFly = false;
+
+				Util::sendMessage(L"Fly mode set to normal");
+			}
+			else if (mode == "smooth") {
+				Config::smoothFly = true;
+
+				Util::sendMessage(L"Fly mode set to smooth");
+			}
+			else {
+				Util::sendMessage(L"Use /fly mode <normal/smooth>");
+			}
+		}
+		else if(subCommand == "damping") { // /fly speed
+			if (data.Args.size() < 2) {
+				Util::sendMessage(L"Use /fly damping <amount>");
+				return;
+			}
+
+			try {
+				if (Util::is_float(data.Args[1])) {
+					Config::flyVelocityDamping = data.get_float(1);
+
+					std::string newdamping = data.get_string(1);
+
+					Util::sendMessage(L"Fly velocity damping set to " + std::wstring(newdamping.begin(), newdamping.end()));
+				}
+				else {
+					Util::sendMessage(L"Damping must be a number");
+				}
+			}
+			catch (const std::out_of_range& ex) {
+				Util::sendMessage(L"Damping must be a valid number");
+			}
+		}
+		else {
+			Util::sendMessage(L"Use /fly <speed/mode/damping> ...");
+		}
 	}
 }
 
@@ -390,10 +442,10 @@ void Commands::Help(void* player, SML::CommandParser::CommandData data) {
 		return;
 
 	Util::sendMessage(L"- /give <item> <amount>    (WIP)");
-	Util::sendMessage(L"- /fly");
+	Util::sendMessage(L"- /fly [speed/mode] ...");
 	Util::sendMessage(L"- /flyspeed <speed>");
 	Util::sendMessage(L"- /god");
-	Util::sendMessage(L"- /settimedilation <dilation>");
+	//Util::sendMessage(L"- /settimedilation <dilation>");
 	Util::sendMessage(L"- /creative");
 	Util::sendMessage(L"- /creativepower");
 	Util::sendMessage(L"- /unlockall");

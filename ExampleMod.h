@@ -6,6 +6,12 @@
 #include <other/CommandSystem.h>
 #include <other/BaseMod.h>
 
+#include <utility/Reflection.h>
+
+#include "sdk/SDK.hpp"
+
+#include "JsonConfig.h"
+
 class UtilityMod : SML::BaseMod {
 public:
 	SML::Globals* globalsReference;

@@ -25,7 +25,11 @@ public:
 class Config {
 public:
 	static int flyHotkey, forwardkey, backwardkey, leftkey, rightkey, upkey, downkey, speedkey; // keycodes
+	// fly stuff
 	static double flyspeedmodemultiplier, baseflyspeed;
+	static bool flyUseDeltaSeconds, smoothFly;
+	static int fixedFrameRate;
+	static float flyVelocityDamping;
 };
 
 class CommandStates {
@@ -40,4 +44,6 @@ public:
 	static bool unlockAllSchematicsConfirmation;
 
 	static float flySpeed;
+
+	static FVector targetVelocity;
 };

@@ -25,53 +25,52 @@ void UtilityMod::Setup() {
 
 	SML::mod_info(UtilityMod::name, "Initializing mod...");
 
-	config.load();
+	json config = JsonConfig::load(UtilityMod::name, {
+		{"Fly", {
+			{"Controls", {
+				{"Hotkey", "H"},
+				{"Forward", "W"},
+				{"Backward", "S"},
+				{"Right", "D"},
+				{"Left", "A"},
+				{"Up", "SPACE"},
+				{"Down", "CONTROL"},
+				{"SpeedMode", "SHIFT"},
+			}},
+			{"Settings", {
+				{"SpeedModeMultiplier", 3.f},
+				{"BaseSpeed", 50.f},
+				{"UseDeltaTime", true},
+				{"Smooth", false},
+				{"VelocityDamping", 6.f},
+			}},
+		}},
+		{"Other", {
+			{"FixedFrameRate", 60},
+		}},
+	});
 
-	/// Set config defaults
-	config.set("Fly_Hotkey", "H");
-	config.set("Fly_Forward_Key", "W");
-	config.set("Fly_Backward_Key", "S");
-	config.set("Fly_Right_Key", "D");
-	config.set("Fly_Left_Key", "A");
-	config.set("Fly_Up_Key", "SPACE");
-	config.set("Fly_Down_Key", "CONTROL");
-	config.set("Fly_Speed_Mode_Key", "SHIFT");
-	config.set("Fly_Speed_Mode_Multiplier", 3.0);
-	config.set("Fly_Base_Speed", 1.0);
+	/// Read Config
 
-	/// Apply changes to config
-	config.save();
-	config.load();
+	// Fly Controls
+	Config::flyHotkey = Util::GetKey(config["Fly"]["Controls"]["Hotkey"].get<std::string>());
+	Config::forwardkey = Util::GetKey(config["Fly"]["Controls"]["Forward"].get<std::string>());
+	Config::backwardkey = Util::GetKey(config["Fly"]["Controls"]["Backward"].get<std::string>());
+	Config::rightkey = Util::GetKey(config["Fly"]["Controls"]["Right"].get<std::string>());
+	Config::leftkey = Util::GetKey(config["Fly"]["Controls"]["Left"].get<std::string>());
+	Config::upkey = Util::GetKey(config["Fly"]["Controls"]["Up"].get<std::string>());
+	Config::downkey = Util::GetKey(config["Fly"]["Controls"]["Down"].get<std::string>());
+	Config::speedkey = Util::GetKey(config["Fly"]["Controls"]["SpeedMode"].get<std::string>());
 
-	SML::mod_info(UtilityMod::name, "Loading Config...");
+	// Fly settings
+	Config::flyspeedmodemultiplier = config["Fly"]["Settings"]["SpeedModeMultiplier"].get<float>();
+	Config::baseflyspeed = config["Fly"]["Settings"]["BaseSpeed"].get<float>();
+	Config::flyUseDeltaSeconds = config["Fly"]["Settings"]["UseDeltaTime"].get<bool>();
+	Config::smoothFly = config["Fly"]["Settings"]["Smooth"].get<bool>();
+	Config::flyVelocityDamping = config["Fly"]["Settings"]["VelocityDamping"].get<float>();
 
-	Config::flyHotkey = Util::GetKey(config.get("Fly_Hotkey", (std::string)"H"));
-	Config::forwardkey = Util::GetKey(config.get("Fly_Forward_Key", (std::string)"W"));
-	Config::backwardkey = Util::GetKey(config.get("Fly_Backward_Key", (std::string)"S"));
-	Config::rightkey = Util::GetKey(config.get("Fly_Right_Key", (std::string)"D"));
-	Config::leftkey = Util::GetKey(config.get("Fly_Left_Key", (std::string)"A"));
-	Config::upkey = Util::GetKey(config.get("Fly_Up_Key", (std::string)"SPACE"));
-	Config::downkey = Util::GetKey(config.get("Fly_Down_Key", (std::string)"CONTROL"));
-	Config::speedkey = Util::GetKey(config.get("Fly_Speed_Mode_Key", (std::string)"SHIFT"));
-	Config::flyspeedmodemultiplier = config.get("Fly_Speed_Mode_Multiplier", 3.0);
-	Config::baseflyspeed = config.get("Fly_Base_Speed", 1.0);
-
-	/// SDK Init
-	SML::mod_info(UtilityMod::name, "Initializing the sdk...");
-
-	Global::BaseAddress = (DWORD_PTR)GetModuleHandle(nullptr);
-
-	auto btAddrUWorld = Global::BaseAddress + 0x2BA6FC;
-	auto btOffUWorld = *reinterpret_cast<uint32_t*>(btAddrUWorld + 3);
-	Global::m_UWorld = reinterpret_cast<UWorld**>(btAddrUWorld + 7 + btOffUWorld);
-
-	auto btAddrGObj = Global::BaseAddress + 0xE1434;
-	auto btOffGObj = *reinterpret_cast<uint32_t*>(btAddrGObj + 3);
-	UObject::GObjects = reinterpret_cast<FUObjectArray*>(btAddrGObj + 7 + btOffGObj);
-
-	auto btAddrGName = Global::BaseAddress + 0xAC3434;
-	auto btOffGName = *reinterpret_cast<uint32_t*>(btAddrGName + 3);
-	FName::GNames = *reinterpret_cast<TNameEntryArray**>(btAddrGName + 7 + btOffGName);
+	// Other
+	Config::fixedFrameRate = config["Other"]["FixedFrameRate"].get<int>();
 
 	/// Subscribe to events
 	SML::mod_info(UtilityMod::name, "Subscribing to events...");
@@ -91,7 +90,7 @@ void UtilityMod::Setup() {
 	_dispatcher.subscribe(SML::HookLoader::Event::ServerMove_Validate, Events::ServerMove_Validate);
 	_dispatcher.subscribe(SML::HookLoader::Event::ServerCheckClientError, Events::ServerCheckClientError);
 	
-	//_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, OnDrawHUD);
+	_dispatcher.subscribe(SML::HookLoader::Event::DrawHUD, Events::OnDrawHUD);
 
 	/// Register commands
 	SML::mod_info(UtilityMod::name, "Registering commands...");
@@ -99,9 +98,8 @@ void UtilityMod::Setup() {
 	UtilityMod::commandSystem.RegisterCommand("help", Commands::Help);
 	UtilityMod::commandSystem.RegisterCommand("give", Commands::GiveItem);
 	UtilityMod::commandSystem.RegisterCommand("fly", Commands::Fly);
-	UtilityMod::commandSystem.RegisterCommand("flyspeed", Commands::FlySpeed);
 	UtilityMod::commandSystem.RegisterCommand("god", Commands::God);
-	UtilityMod::commandSystem.RegisterCommand("settimedilation", Commands::SetTimeDilation);
+	//UtilityMod::commandSystem.RegisterCommand("settimedilation", Commands::SetTimeDilation);
 	UtilityMod::commandSystem.RegisterCommand("creative", Commands::Creative);
 	UtilityMod::commandSystem.RegisterCommand("creativepower", Commands::CreativePower);
 	UtilityMod::commandSystem.RegisterCommand("unlockall", Commands::UnlockAllSchematics);
